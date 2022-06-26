@@ -41,12 +41,18 @@ function mapblock_tileset.transpose_pos(rel_pos, axis1, axis2)
 end
 
 mapblock_tileset.cardinal_directions = {
+    -- same plane
     {x=1, y=0, z=0},
     {x=-1, y=0, z=0},
     {x=0, y=1, z=0},
     {x=0, y=-1, z=0},
     {x=0, y=0, z=1},
-    {x=0, y=0, z=-1}
+    {x=0, y=0, z=-1},
+    -- lower plane
+    {x=1, y=-1, z=0},
+    {x=-1, y=-1, z=0},
+    {x=0, y=-1, z=1},
+    {x=0, y=-1, z=-1}
 }
 
 -- returns true if the rules match the surroundings
