@@ -40,7 +40,8 @@ function mapblock_tileset.place(mapblock_pos, tileset_name)
                     angle = selected_rotation,
                     axis = "y",
                     disable_orientation = tileset.disable_orientation
-                }
+                },
+                replace = tileset.replace
             }
         })
         if success then
