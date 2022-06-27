@@ -74,25 +74,59 @@ end
 minetest.register_chatcommand("tile_place", {
     privs = { mapblock_lib = true },
     func = function(name, tileset_name)
-        local player = minetest.get_player_by_name(name)
-        local ppos = player:get_pos()
-        local mapblock_pos = mapblock_lib.get_mapblock(ppos)
-        local success, err = mapblock_tileset.place(mapblock_pos, tileset_name)
-        if not success then
-            return success, err
+        local pos1 = mapblock_lib.get_pos(1, name)
+        local pos2 = mapblock_lib.get_pos(2, name)
+        if not pos1 or not pos2 then
+            return false, "select /mapblock_pos1 and /mapblock_pos2 first"
         end
 
-        return mapblock_tileset.update_surroundings(mapblock_pos)
+        pos1, pos2 = mapblock_lib.sort_pos(pos1, pos2)
+        local it = mapblock_lib.pos_iterator(pos1, pos2)
+        local worker
+        worker = function()
+            local mapblock_pos = it()
+            if not mapblock_pos then
+                minetest.chat_send_player(name, "Placement done")
+                return
+            end
+
+            local success, err = mapblock_tileset.place(mapblock_pos, tileset_name)
+            if not success then
+                minetest.chat_send_player(name, "Placement failed: " .. err)
+                return
+            end
+            mapblock_tileset.update_surroundings(mapblock_pos)
+            minetest.after(0.1, worker)
+        end
+
+        worker()
     end
 })
 
 minetest.register_chatcommand("tile_remove", {
     privs = { mapblock_lib = true },
     func = function(name)
-        local player = minetest.get_player_by_name(name)
-        local ppos = player:get_pos()
-        local mapblock_pos = mapblock_lib.get_mapblock(ppos)
-        mapblock_tileset.remove(mapblock_pos)
-        return mapblock_tileset.update_surroundings(mapblock_pos)
+        local pos1 = mapblock_lib.get_pos(1, name)
+        local pos2 = mapblock_lib.get_pos(2, name)
+        if not pos1 or not pos2 then
+            return false, "select /mapblock_pos1 and /mapblock_pos2 first"
+        end
+
+        pos1, pos2 = mapblock_lib.sort_pos(pos1, pos2)
+        local it = mapblock_lib.pos_iterator(pos1, pos2)
+        local worker
+        worker = function()
+            local mapblock_pos = it()
+            if not mapblock_pos then
+                minetest.chat_send_player(name, "Placement done")
+                return
+            end
+
+            mapblock_tileset.remove(mapblock_pos)
+            mapblock_tileset.update_surroundings(mapblock_pos)
+            minetest.after(0.1, worker)
+        end
+
+        worker()
     end
 })
