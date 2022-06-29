@@ -33,5 +33,21 @@ return function(callback)
     assert(not match)
     assert(match_count == nil)
 
+    -- tilename match
+    rules = {
+        ["1,0,0"] = { tilename = "mytile" }
+    }
+    match, match_count = mapblock_tileset.compare_rules({x=0, y=0, z=0}, rules, get_mapblock_data)
+    assert(match)
+    assert(match_count == 1)
+
+    -- tilename does not match
+    rules = {
+        ["1,0,0"] = { tilename = "not-mytile" }
+    }
+    match, match_count = mapblock_tileset.compare_rules({x=0, y=0, z=0}, rules, get_mapblock_data)
+    assert(not match)
+    assert(match_count == nil)
+
     callback()
 end
