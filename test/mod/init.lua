@@ -5,6 +5,7 @@ local jobs = {}
 
 local MP = minetest.get_modpath("mapblock_tileset_test")
 table.insert(jobs, loadfile(MP .. "/common_rotate_rules.lua")())
+table.insert(jobs, loadfile(MP .. "/common_compare_rules.lua")())
 table.insert(jobs, loadfile(MP .. "/prepare_world.lua")(pos1, pos2))
 
 local job_index = 1
