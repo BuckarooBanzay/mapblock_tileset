@@ -68,9 +68,6 @@ function mapblock_tileset.compare_rules(mapblock_pos, rules, get_mapblock_data)
             if tileset and tileset.groups then
                 groups = tileset.groups
             end
-        else
-            -- no tile-data -> match
-            return false
         end
 
         if type(rule) == "table" then
@@ -94,7 +91,16 @@ function mapblock_tileset.compare_rules(mapblock_pos, rules, get_mapblock_data)
 
             -- exact tilename match
             if rule.tilename then
-                if rule.tilename ~= data.tilename then
+                if not data or rule.tilename ~= data.tilename then
+                    return false
+                else
+                    matches = matches + 1
+                end
+            end
+
+            -- tilename non-match
+            if rule.not_tilename then
+                if data and rule.not_tilename == data.tilename then
                     return false
                 else
                     matches = matches + 1
@@ -104,7 +110,7 @@ function mapblock_tileset.compare_rules(mapblock_pos, rules, get_mapblock_data)
 
         if type(rule) == "string" then
             -- single match with tilename
-            if rule ~= data.tilename then
+            if not data or rule ~= data.tilename then
                 return false
             else
                 matches = matches + 1
