@@ -8,10 +8,6 @@ return function(callback)
         }
     })
 
-    local rules = {
-        ["1,0,0"] = { groups = {"a"} }
-    }
-
     local mapdata = {
         ["1,0,0"] = { tilename="mytile" }
     }
@@ -21,9 +17,21 @@ return function(callback)
         return mapdata[pos_str]
     end
 
+    -- group match
+    local rules = {
+        ["1,0,0"] = { groups = {"a"} }
+    }
     local match, match_count = mapblock_tileset.compare_rules({x=0, y=0, z=0}, rules, get_mapblock_data)
     assert(match)
     assert(match_count == 1)
+
+    -- group does not match
+    rules = {
+        ["1,0,0"] = { not_groups = {"a"} }
+    }
+    match, match_count = mapblock_tileset.compare_rules({x=0, y=0, z=0}, rules, get_mapblock_data)
+    assert(not match)
+    assert(match_count == nil)
 
     callback()
 end

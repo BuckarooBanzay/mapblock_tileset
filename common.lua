@@ -73,8 +73,15 @@ function mapblock_tileset.compare_rules(mapblock_pos, rules, get_mapblock_data)
             return false
         end
 
-        for _, group in ipairs(rule.groups) do
+        for _, group in ipairs(rule.groups or {}) do
             if not groups[group] then
+                return false
+            end
+            matches = matches + 1
+        end
+
+        for _, not_group in ipairs(rule.not_groups or {}) do
+            if groups[not_group] then
                 return false
             end
             matches = matches + 1
