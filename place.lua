@@ -2,7 +2,7 @@
 -- local delegates
 
 local function get_mapblock_data(mapblock_pos)
-    mapblock_lib.get_mapblock_data(mapblock_pos)
+    return mapblock_lib.get_mapblock_data(mapblock_pos)
 end
 
 local function set_mapblock_data(mapblock_pos, data)
