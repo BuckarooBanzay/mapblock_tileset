@@ -41,6 +41,14 @@ return function(callback)
     assert(match)
     assert(match_count == 1)
 
+    -- tilename match (string rule)
+    rules = {
+        ["1,0,0"] = "mytile"
+    }
+    match, match_count = mapblock_tileset.compare_rules({x=0, y=0, z=0}, rules, get_mapblock_data)
+    assert(match)
+    assert(match_count == 1)
+
     -- tilename does not match
     rules = {
         ["1,0,0"] = { tilename = "not-mytile" }
