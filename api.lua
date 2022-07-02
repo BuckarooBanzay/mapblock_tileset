@@ -13,14 +13,3 @@ end
 function mapblock_tileset.get_tilesets()
     return tilesets
 end
-
-local placements = {}
-
-function mapblock_tileset.register_placement(name, placement_def)
-    placement_def.name = name
-    placements[name] = placement_def
-end
-
-function mapblock_tileset.get_placement(name)
-    return placements[name]
-end
