@@ -6,6 +6,7 @@ minetest.register_on_mods_loaded(function()
     for tilesetname in pairs(mapblock_tileset.get_tilesets()) do
         table.insert(tileset_list, tilesetname)
     end
+    table.sort(tileset_list)
 end)
 
 local function get_formspec(itemstack)
