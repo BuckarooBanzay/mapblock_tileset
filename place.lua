@@ -1,17 +1,7 @@
 
--- local delegates
-
-local function get_mapblock_data(mapblock_pos)
-    return mapblock_lib.get_mapblock_data(mapblock_pos)
-end
-
-local function set_mapblock_data(mapblock_pos, data)
-    mapblock_lib.set_mapblock_data(mapblock_pos, data)
-end
-
 function mapblock_tileset.remove(mapblock_pos)
     mapblock_lib.clear_mapblock(mapblock_pos)
-    set_mapblock_data(mapblock_pos, nil)
+    mapblock_tileset.set_mapblock_data(mapblock_pos, nil)
 end
 
 function mapblock_tileset.place(mapblock_pos, tileset_name)
@@ -27,7 +17,7 @@ function mapblock_tileset.place(mapblock_pos, tileset_name)
     for _, tile in ipairs(tileset.tiles) do
         for _, rotation in ipairs(tile.rotations) do
             local rules = mapblock_tileset.rotate_rules(tile.rules, rotation)
-            local match, matchcount = mapblock_tileset.compare_rules(mapblock_pos, rules, get_mapblock_data)
+            local match, matchcount = mapblock_tileset.compare_rules(mapblock_pos, rules)
             if match and matchcount > selected_matchcount then
                 selected_rotation = rotation
                 selected_tile = tile
@@ -55,7 +45,7 @@ function mapblock_tileset.place(mapblock_pos, tileset_name)
             }
         })
         if success then
-            set_mapblock_data(mapblock_pos, {
+            mapblock_tileset.set_mapblock_data(mapblock_pos, {
                 tilename = tileset_name,
                 tilerotation = selected_rotation
             })
@@ -69,7 +59,7 @@ end
 function mapblock_tileset.update_surroundings(mapblock_pos)
     for _, dir in ipairs(mapblock_tileset.cardinal_directions) do
         local neighbor_pos = vector.add(mapblock_pos, dir)
-        local data = mapblock_lib.get_mapblock_data(neighbor_pos)
+        local data = mapblock_tileset.get_mapblock_data(neighbor_pos)
         if data and data.tilename then
             local success, err = mapblock_tileset.place(neighbor_pos, data.tilename)
             if not success then

@@ -56,12 +56,12 @@ mapblock_tileset.cardinal_directions = {
 }
 
 -- returns true if the rules match the surroundings
-function mapblock_tileset.compare_rules(mapblock_pos, rules, get_mapblock_data)
+function mapblock_tileset.compare_rules(mapblock_pos, rules)
     local matches = 0
     for dirname, rule in pairs(rules) do
         local rel_pos = mapblock_tileset.string_to_pos(dirname)
         local abs_pos = vector.add(mapblock_pos, rel_pos)
-        local data = get_mapblock_data(abs_pos)
+        local data = mapblock_tileset.get_mapblock_data(abs_pos)
         local groups = {}
         if data and data.tilename then
             local tileset = mapblock_tileset.get_tileset(data.tilename)
