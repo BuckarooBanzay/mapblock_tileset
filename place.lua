@@ -33,24 +33,27 @@ function mapblock_tileset.place(mapblock_pos, tileset_name)
 
     if selected_tile then
         local catalog = mapblock_lib.get_catalog(tileset.catalog)
-        local tilepos = selected_tile.positions[math.random(#selected_tile.positions)]
-        local success, err = catalog:deserialize(tilepos, mapblock_pos, {
-            transform = {
-                rotate = {
-                    angle = selected_rotation,
-                    axis = "y",
-                    disable_orientation = tileset.disable_orientation
-                },
-                replace = tileset.replace
-            }
-        })
-        if success then
-            mapblock_tileset.set_mapblock_data(mapblock_pos, {
-                tilename = tileset_name,
-                tilerotation = selected_rotation
+        if selected_tile.positions and #selected_tile.positions > 0 then
+            local tilepos = selected_tile.positions[math.random(#selected_tile.positions)]
+            local success, err = catalog:deserialize(tilepos, mapblock_pos, {
+                transform = {
+                    rotate = {
+                        angle = selected_rotation,
+                        axis = "y",
+                        disable_orientation = tileset.disable_orientation
+                    },
+                    replace = tileset.replace
+                }
             })
+            if not success then
+                return false, err
+            end
         end
-        return success, err
+        mapblock_tileset.set_mapblock_data(mapblock_pos, {
+            tilename = tileset_name,
+            tilerotation = selected_rotation
+        })
+        return true
     end
 
     return false, "no matching tile found"
