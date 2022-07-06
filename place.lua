@@ -34,6 +34,7 @@ function mapblock_tileset.place(mapblock_pos, tileset_name)
     if selected_tile then
         local catalog = mapblock_lib.get_catalog(tileset.catalog)
         if selected_tile.positions and #selected_tile.positions > 0 then
+            -- set mapblock
             local tilepos = selected_tile.positions[math.random(#selected_tile.positions)]
             local success, err = catalog:deserialize(tilepos, mapblock_pos, {
                 transform = {
@@ -48,6 +49,9 @@ function mapblock_tileset.place(mapblock_pos, tileset_name)
             if not success then
                 return false, err
             end
+        else
+            -- clear mapblock
+            mapblock_tileset.set_mapblock_data(mapblock_pos, nil)
         end
         mapblock_tileset.set_mapblock_data(mapblock_pos, {
             tilename = tileset_name,
