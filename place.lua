@@ -51,7 +51,7 @@ function mapblock_tileset.place(mapblock_pos, tileset_name)
             end
         else
             -- clear mapblock
-            mapblock_tileset.set_mapblock_data(mapblock_pos, nil)
+            mapblock_lib.clear_mapblock(mapblock_pos)
         end
         mapblock_tileset.set_mapblock_data(mapblock_pos, {
             tilename = tileset_name,
