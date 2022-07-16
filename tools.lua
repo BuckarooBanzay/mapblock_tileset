@@ -71,7 +71,7 @@ minetest.register_tool("mapblock_tileset:place", {
         if not mapblock_tileset.get_tileset(tilesetname) then
             minetest.chat_send_player(
                 player:get_player_name(),
-                "Placer unconfigured or selected tileset does not found"
+                "Placer unconfigured or selected tileset not found"
             )
             return
         end
