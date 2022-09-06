@@ -10,6 +10,15 @@ function mapblock_tileset.place(mapblock_pos, tileset_name)
         return false, "tileset not found: " .. tileset_name
     end
 
+    if not tileset.tiles or not tileset.catalog then
+        -- dummy tile, just set data and return
+        mapblock_tileset.set_mapblock_data(mapblock_pos, {
+            tilename = tileset_name,
+            tilerotation = 0
+        })
+        return true
+    end
+
     local selected_tile
     local selected_matchcount = 0
     local selected_rotation = 0
@@ -32,7 +41,10 @@ function mapblock_tileset.place(mapblock_pos, tileset_name)
     end
 
     if selected_tile then
-        local catalog = mapblock_lib.get_catalog(tileset.catalog)
+        local catalog, catalog_err = mapblock_lib.get_catalog(tileset.catalog)
+        if catalog_err then
+            return nil, "get_catalog error: " .. catalog_err
+        end
         if selected_tile.positions and #selected_tile.positions > 0 then
             -- set mapblock
             local tilepos = selected_tile.positions[math.random(#selected_tile.positions)]
