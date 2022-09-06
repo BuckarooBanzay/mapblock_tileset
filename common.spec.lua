@@ -1,7 +1,5 @@
 
-return function(callback)
-    print("common_compare_rules")
-
+mtt.register("common_compare_rules", function(callback)
     mapblock_tileset.register_tileset("mytile", {
         groups = {
             a = true
@@ -51,4 +49,30 @@ return function(callback)
     assert(match_count == nil)
 
     callback()
-end
+end)
+
+
+mtt.register("common_rotate_rules", function(callback)
+    local rules = {
+        ["1,0,0"] = {id=1},
+        ["0,0,1"] = {id=2},
+        ["0,0,3"] = {id=3}
+    }
+
+    local rotated_rules = mapblock_tileset.rotate_rules(rules, 90)
+    assert(rotated_rules["0,0,-1"].id == 1)
+    assert(rotated_rules["1,0,0"].id == 2)
+    assert(rotated_rules["3,0,0"].id == 3)
+
+    rotated_rules = mapblock_tileset.rotate_rules(rules, 180)
+    assert(rotated_rules["-1,0,0"].id == 1)
+    assert(rotated_rules["0,0,-1"].id == 2)
+    assert(rotated_rules["0,0,-3"].id == 3)
+
+    rotated_rules = mapblock_tileset.rotate_rules(rules, 270)
+    assert(rotated_rules["0,0,1"].id == 1)
+    assert(rotated_rules["-1,0,0"].id == 2)
+    assert(rotated_rules["-3,0,0"].id == 3)
+
+    callback()
+end)

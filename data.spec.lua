@@ -1,7 +1,5 @@
 
-return function(callback)
-    print("data")
-
+mtt.register("data", function(callback)
     local pos1 = {x=0, y=0, z=0}
     local pos2 = {x=0, y=2, z=0}
 
@@ -18,4 +16,4 @@ return function(callback)
     assert(not data)
 
     callback()
-end
+end)

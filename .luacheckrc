@@ -15,5 +15,5 @@ read_globals = {
 	"vector",
 
 	-- deps
-	"mapblock_lib"
+	"mapblock_lib", "mtt"
 }

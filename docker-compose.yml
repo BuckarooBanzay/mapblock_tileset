@@ -7,7 +7,6 @@ services:
   user: root
   volumes:
     - "./:/root/.minetest/worlds/world/worldmods/mapblock_tileset/"
-    - "./test/mod:/root/.minetest/worlds/world/worldmods/mapblock_tileset_test/"
     - "./test/world.mt:/root/.minetest/worlds/world/world.mt"
     - "./test/minetest.conf:/minetest.conf"
   ports:
