@@ -7,6 +7,7 @@ dofile(MP .. "/data.lua")
 dofile(MP .. "/common.lua")
 dofile(MP .. "/place.lua")
 dofile(MP .. "/tools.lua")
+dofile(MP .. "/pointed.lua")
 
 if minetest.get_modpath("mtt") then
     dofile(MP .. "/mtt.lua")

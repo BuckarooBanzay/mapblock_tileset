@@ -75,8 +75,7 @@ minetest.register_tool("mapblock_tileset:place", {
             )
             return
         end
-        local ppos = player:get_pos()
-        local mapblock_pos = mapblock_lib.get_mapblock(ppos)
+        local mapblock_pos = mapblock_tileset.get_pointed_position(player)
         local success, err = mapblock_tileset.place(mapblock_pos, tilesetname)
         if not success then
             minetest.chat_send_player(player:get_player_name(), err)
@@ -97,8 +96,7 @@ minetest.register_tool("mapblock_tileset:remove", {
     stack_max = 1,
     range = 0,
     on_use = function(_, player)
-        local ppos = player:get_pos()
-        local mapblock_pos = mapblock_lib.get_mapblock(ppos)
+        local mapblock_pos = mapblock_tileset.get_pointed_position(player)
         mapblock_tileset.remove(mapblock_pos)
         mapblock_tileset.update_surroundings(mapblock_pos)
     end
