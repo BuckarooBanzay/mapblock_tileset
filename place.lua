@@ -56,7 +56,8 @@ function mapblock_tileset.place(mapblock_pos, tileset_name)
                         disable_orientation = selected_tile.disable_orientation or tileset.disable_orientation
                     },
                     replace = selected_tile.replace or tileset.replace
-                }
+                },
+                on_metadata = tileset.on_metadata
             })
             if not success then
                 return false, err
