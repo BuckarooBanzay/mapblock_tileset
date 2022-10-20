@@ -16,28 +16,21 @@ function mapblock_tileset.rotate_rules(rules, rotation)
 
     for pos_str, rule in pairs(rules) do
         local pos = mapblock_tileset.string_to_pos(pos_str)
+        local max_pos = {x=0, y=0, z=0}
         if rotation == 90 then
-            mapblock_tileset.flip_pos(pos, "x")
-            mapblock_tileset.transpose_pos(pos, "x", "z")
+            mapblock_lib.flip_pos(pos, max_pos, "x")
+            mapblock_lib.transpose_pos(pos, "x", "z")
         elseif rotation == 180 then
-            mapblock_tileset.flip_pos(pos, "x")
-            mapblock_tileset.flip_pos(pos, "z")
+            mapblock_lib.flip_pos(pos, max_pos, "x")
+            mapblock_lib.flip_pos(pos, max_pos, "z")
         elseif rotation == 270 then
-            mapblock_tileset.flip_pos(pos, "z")
-            mapblock_tileset.transpose_pos(pos, "x", "z")
+            mapblock_lib.flip_pos(pos, max_pos, "z")
+            mapblock_lib.transpose_pos(pos, "x", "z")
         end
         rotated_rules[mapblock_tileset.pos_to_string(pos)] = rule
     end
 
     return rotated_rules
-end
-
-function mapblock_tileset.flip_pos(rel_pos, axis)
-	rel_pos[axis] = 0 - rel_pos[axis]
-end
-
-function mapblock_tileset.transpose_pos(rel_pos, axis1, axis2)
-	rel_pos[axis1], rel_pos[axis2] = rel_pos[axis2], rel_pos[axis1]
 end
 
 mapblock_tileset.cardinal_directions = {
