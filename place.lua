@@ -19,26 +19,7 @@ function mapblock_tileset.place(mapblock_pos, tileset_name)
         return true
     end
 
-    local selected_tile
-    local selected_matchcount = 0
-    local selected_rotation = 0
-
-    for _, tile in ipairs(tileset.tiles) do
-        for _, rotation in ipairs(tile.rotations) do
-            local rules = mapblock_tileset.rotate_rules(tile.rules, rotation)
-            local match, matchcount = mapblock_tileset.compare_rules(mapblock_pos, rules)
-            if match and matchcount > selected_matchcount then
-                selected_rotation = rotation
-                selected_tile = tile
-                selected_matchcount = matchcount
-            end
-        end
-    end
-
-    if not selected_tile then
-        selected_tile = mapblock_tileset.select_fallback(tileset)
-        selected_rotation = 0
-    end
+    local selected_tile, selected_rotation = mapblock_tileset.select_tile(mapblock_pos, tileset)
 
     if selected_tile then
         local catalog, catalog_err = mapblock_lib.get_catalog(tileset.catalog)

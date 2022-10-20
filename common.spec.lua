@@ -76,3 +76,49 @@ mtt.register("common_rotate_rules", function(callback)
 
     callback()
 end)
+
+mtt.register("common_select_tile", function(callback)
+    mapblock_tileset.register_tileset("mytile_1", {
+        groups = {
+            a = true
+        }
+    })
+
+    mapblock_tileset.register_tileset("mytile_2", {
+        catalog = "",
+        tiles = {
+            {
+                positions = {x=1,y=0,z=0},
+                rules = {
+                    ["0,0,1"] = { groups = {"a"}}
+                },
+                rotations = {0,90,180,270}
+            }
+        }
+    })
+
+    local success = mapblock_tileset.place({x=10,y=0,z=0}, "mytile_1")
+    assert(success)
+
+    local tileset = mapblock_tileset.get_tileset("mytile_2")
+    assert(tileset)
+
+    -- rotated match
+    local selected_tile, selected_rotation = mapblock_tileset.select_tile({x=11, y=0,z=0}, tileset)
+    assert(selected_tile)
+    assert(selected_rotation == 270)
+
+    selected_tile, selected_rotation = mapblock_tileset.select_tile({x=9, y=0,z=0}, tileset)
+    assert(selected_tile)
+    assert(selected_rotation == 90)
+
+    selected_tile, selected_rotation = mapblock_tileset.select_tile({x=10, y=0,z=-1}, tileset)
+    assert(selected_tile)
+    assert(selected_rotation == 0)
+
+    -- no match
+    selected_tile = mapblock_tileset.select_tile({x=999, y=0,z=0}, tileset)
+    assert(not selected_tile)
+
+    callback()
+end)

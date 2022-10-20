@@ -28,6 +28,33 @@ Placement via the `mapblock_tileset:place` tool or the `/tile_place` command, in
 ```lua
 local MP = minetest.get_modpath(minetest.get_current_modname())
 
+-- SPEC V2
+mapblock_tileset.register_tileset("street", {
+    catalog = MP .. "/schematics/street.zip",
+    tiles = {
+        -- straight street
+        {
+            positions = {{x=0,y=0,z=0}},
+            size = {x=1,y=1,z=1}, -- optional, defaults to 1x1x1
+            rotations = {0,90},
+            -- connections / rules
+            connections = {
+                {
+                    position = {x=0,y=0,z=0}, -- optional, defaults to 0,0,0
+                    direction = {x=1,y=0,z=0},
+                    groups = {"street"},
+                    rule = true
+                },{
+                    position = {x=0,y=0,z=0}, -- optional, defaults to 0,0,0
+                    direction = {x=-1,y=0,z=0},
+                    groups = {"street"},
+                    rule = true
+                }
+            }
+        }
+    }
+})
+
 mapblock_tileset.register_tileset("street", {
     -- the location of the mapblock catalog
     catalog = MP .. "/schematics/street.zip",
