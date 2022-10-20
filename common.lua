@@ -7,30 +7,41 @@ function mapblock_tileset.string_to_pos(str)
     return minetest.string_to_pos("(" .. str .. ")")
 end
 
--- y-axis only rule-rotation
-function mapblock_tileset.rotate_rules(rules, rotation)
+function mapblock_tileset.rotate_position_y(pos, max_pos, rotation)
+    local new_pos = table.copy(pos)
+    if rotation == 90 then
+        mapblock_lib.flip_pos(new_pos, max_pos, "x")
+        mapblock_lib.transpose_pos(new_pos, "x", "z")
+    elseif rotation == 180 then
+        mapblock_lib.flip_pos(new_pos, max_pos, "x")
+        mapblock_lib.flip_pos(new_pos, max_pos, "z")
+    elseif rotation == 270 then
+        mapblock_lib.flip_pos(new_pos, max_pos, "z")
+        mapblock_lib.transpose_pos(new_pos, "x", "z")
+    end
+    return new_pos
+end
+
+-- y-axis only connection-rotation
+function mapblock_tileset.rotate_connections(connections, size, rotation)
     if rotation == 0 then
-        return rules
+        return connections
     end
-    local rotated_rules = {}
+    local rotated_connections = {}
 
-    for pos_str, rule in pairs(rules) do
-        local pos = mapblock_tileset.string_to_pos(pos_str)
-        local max_pos = {x=0, y=0, z=0}
-        if rotation == 90 then
-            mapblock_lib.flip_pos(pos, max_pos, "x")
-            mapblock_lib.transpose_pos(pos, "x", "z")
-        elseif rotation == 180 then
-            mapblock_lib.flip_pos(pos, max_pos, "x")
-            mapblock_lib.flip_pos(pos, max_pos, "z")
-        elseif rotation == 270 then
-            mapblock_lib.flip_pos(pos, max_pos, "z")
-            mapblock_lib.transpose_pos(pos, "x", "z")
-        end
-        rotated_rules[mapblock_tileset.pos_to_string(pos)] = rule
+    for i, connection in ipairs(connections) do
+        local new_connection = table.copy(connection)
+        -- copy position and direction vector
+        new_connection.position = table.copy(connection.position or {x=0,y=0,z=0})
+        new_connection.direction = table.copy(connection.direction)
+
+        local max_pos = vector.subtract(size, 1)
+        new_connection.position = mapblock_tileset.rotate_position_y(new_connection.position, max_pos, rotation)
+        new_connection.direction = mapblock_tileset.rotate_position_y(new_connection.direction, {x=0,y=0,z=0}, rotation)
+        table.insert(rotated_connections, new_connection)
     end
 
-    return rotated_rules
+    return rotated_connections
 end
 
 mapblock_tileset.cardinal_directions = {
@@ -48,12 +59,12 @@ mapblock_tileset.cardinal_directions = {
     {x=0, y=-1, z=-1}
 }
 
--- returns true if the rules match the surroundings
-function mapblock_tileset.compare_rules(mapblock_pos, rules)
+-- returns true if the connections match the surroundings
+function mapblock_tileset.compare_connections(mapblock_pos, connections)
     local matches = 0
-    for dirname, rule in pairs(rules) do
-        local rel_pos = mapblock_tileset.string_to_pos(dirname)
-        local abs_pos = vector.add(mapblock_pos, rel_pos)
+    for _, connection in ipairs(connections) do
+        connection.position = connection.position or {x=0,y=0,z=0}
+        local abs_pos = vector.add( vector.add(mapblock_pos, connection.position), connection.direction )
         local data = mapblock_tileset.get_mapblock_data(abs_pos)
         local groups = {}
         if data and data.tilename then
@@ -63,84 +74,70 @@ function mapblock_tileset.compare_rules(mapblock_pos, rules)
             end
         end
 
-        if type(rule) == "table" then
-            -- table with fields
-
-            -- group match
-            for _, group in ipairs(rule.groups or {}) do
-                if not groups[group] then
+        -- group match
+        for _, group in ipairs(connection.groups or {}) do
+            if not groups[group] then
+                if not connection.optional then
                     return false
                 end
-                matches = matches + 1
-            end
-
-            -- group non-match
-            for _, not_group in ipairs(rule.not_groups or {}) do
-                if groups[not_group] then
-                    return false
-                end
-                matches = matches + 1
-            end
-
-            -- exact tilename match
-            if rule.tilename then
-                if not data or rule.tilename ~= data.tilename then
-                    return false
-                else
-                    matches = matches + 1
-                end
-            end
-
-            -- tilename non-match
-            if rule.not_tilename then
-                if data and rule.not_tilename == data.tilename then
-                    return false
-                else
-                    matches = matches + 1
-                end
-            end
-        end
-
-        if type(rule) == "string" then
-            -- single match with tilename
-            if not data or rule ~= data.tilename then
-                return false
             else
                 matches = matches + 1
             end
         end
+
+        -- group non-match
+        for _, not_group in ipairs(connection.not_groups or {}) do
+            if groups[not_group] then
+                if not connection.optional then
+                    return false
+                end
+            else
+                matches = matches + 1
+            end
+        end
+
+        -- exact tilename match
+        if connection.tilename then
+            if not data or connection.tilename ~= data.tilename then
+                if not connection.optional then
+                    return false
+                end
+            else
+                matches = matches + 1
+            end
+        end
+
+        -- tilename non-match
+        if connection.not_tilename then
+            if data and connection.not_tilename == data.tilename then
+                if not connection.optional then
+                    return false
+                end
+            else
+                matches = matches + 1
+            end
+        end
+
     end
     return true, matches
 end
 
-function mapblock_tileset.select_fallback(tileset)
-    for _, tile in ipairs(tileset.tiles) do
-        if tile.fallback then
-            return tile
-        end
-    end
-end
-
 function mapblock_tileset.select_tile(mapblock_pos, tileset)
     local selected_tile
-    local selected_matchcount = 0
+    local selected_matchcount = -1
     local selected_rotation = 0
 
     for _, tile in ipairs(tileset.tiles) do
+        local size = tile.size or {x=1,y=1,z=1}
         for _, rotation in ipairs(tile.rotations) do
-            local rules = mapblock_tileset.rotate_rules(tile.rules, rotation)
-            local match, matchcount = mapblock_tileset.compare_rules(mapblock_pos, rules)
+            local connections = mapblock_tileset.rotate_connections(tile.connections, size, rotation)
+            local match, matchcount = mapblock_tileset.compare_connections(mapblock_pos, connections)
             if match and matchcount > selected_matchcount then
                 selected_rotation = rotation
                 selected_tile = tile
                 selected_matchcount = matchcount
             end
         end
-    end
-
-    if not selected_tile then
-        selected_tile = mapblock_tileset.select_fallback(tileset)
-        selected_rotation = 0
     end
 
     return selected_tile, selected_rotation

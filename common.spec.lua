@@ -1,78 +1,98 @@
 
 mtt.register("common_compare_rules", function(callback)
     mapblock_tileset.register_tileset("mytile", {
-        groups = {
-            a = true
+        connections = {
+            {
+                type = "a",
+                direction = {x=1,y=0,z=0},
+            }
         }
     })
 
     mapblock_tileset.set_mapblock_data({x=1,y=0,z=0}, { tilename="mytile" })
 
-    -- group match
-    local rules = {
-        ["1,0,0"] = { groups = {"a"} }
+    local connections = {
+        {
+            type = "a",
+            direction = {x=1,y=0,z=0}
+        }
     }
-    local match, match_count = mapblock_tileset.compare_rules({x=0, y=0, z=0}, rules)
+    local match, match_count = mapblock_tileset.compare_connections({x=0, y=0, z=0}, connections)
     assert(match)
     assert(match_count == 1)
-
-    -- group does not match
-    rules = {
-        ["1,0,0"] = { not_groups = {"a"} }
-    }
-    match, match_count = mapblock_tileset.compare_rules({x=0, y=0, z=0}, rules)
-    assert(not match)
-    assert(match_count == nil)
-
-    -- tilename match
-    rules = {
-        ["1,0,0"] = { tilename = "mytile" }
-    }
-    match, match_count = mapblock_tileset.compare_rules({x=0, y=0, z=0}, rules)
-    assert(match)
-    assert(match_count == 1)
-
-    -- tilename match (string rule)
-    rules = {
-        ["1,0,0"] = "mytile"
-    }
-    match, match_count = mapblock_tileset.compare_rules({x=0, y=0, z=0}, rules)
-    assert(match)
-    assert(match_count == 1)
-
-    -- tilename does not match
-    rules = {
-        ["1,0,0"] = { tilename = "not-mytile" }
-    }
-    match, match_count = mapblock_tileset.compare_rules({x=0, y=0, z=0}, rules)
-    assert(not match)
-    assert(match_count == nil)
 
     callback()
 end)
 
+mtt.register("common_rotate_rotate_position_y", function(callback)
+    local pos = {x=0,y=0,z=3}
+    local max_pos = {x=3,y=0,z=3}
 
-mtt.register("common_rotate_rules", function(callback)
-    local rules = {
-        ["1,0,0"] = {id=1},
-        ["0,0,1"] = {id=2},
-        ["0,0,3"] = {id=3}
+    local rot_pos = mapblock_tileset.rotate_position_y(pos, max_pos, 90)
+    assert(rot_pos.x == 3)
+    assert(rot_pos.y == 0)
+    assert(rot_pos.z == 3)
+
+    rot_pos = mapblock_tileset.rotate_position_y(pos, max_pos, 180)
+    assert(rot_pos.x == 3)
+    assert(rot_pos.y == 0)
+    assert(rot_pos.z == 0)
+
+    rot_pos = mapblock_tileset.rotate_position_y(pos, max_pos, 270)
+    assert(rot_pos.x == 0)
+    assert(rot_pos.y == 0)
+    assert(rot_pos.z == 0)
+
+    callback()
+end)
+
+mtt.register("common_rotate_connections", function(callback)
+    local connections = {
+        {
+            direction = {x=1,y=0,z=0},
+            id = 1
+        },{
+            position = {x=0,y=0,z=0},
+            direction = {x=0,y=0,z=1},
+            id = 2
+        },{
+            position = {x=0,y=0,z=3},
+            direction = {x=0,y=0,z=1},
+            id = 3
+        }
     }
 
-    local rotated_rules = mapblock_tileset.rotate_rules(rules, 90)
-    assert(rotated_rules["0,0,-1"].id == 1)
-    assert(rotated_rules["1,0,0"].id == 2)
-    assert(rotated_rules["3,0,0"].id == 3)
+    local size = {x=4,y=1,z=4}
 
-    rotated_rules = mapblock_tileset.rotate_rules(rules, 180)
-    assert(rotated_rules["-1,0,0"].id == 1)
-    assert(rotated_rules["0,0,-1"].id == 2)
-    assert(rotated_rules["0,0,-3"].id == 3)
+    local rotated_connections = mapblock_tileset.rotate_connections(connections, size, 90)
+    assert(rotated_connections[1].direction.x == 0)
+    assert(rotated_connections[1].direction.z == -1)
+    assert(rotated_connections[2].direction.x == 1)
+    assert(rotated_connections[2].direction.z == 0)
+    assert(rotated_connections[3].position.x == 3)
+    assert(rotated_connections[3].position.z == 3)
+    assert(rotated_connections[3].direction.x == 1)
+    assert(rotated_connections[3].direction.z == 0)
 
-    rotated_rules = mapblock_tileset.rotate_rules(rules, 270)
-    assert(rotated_rules["0,0,1"].id == 1)
-    assert(rotated_rules["-1,0,0"].id == 2)
-    assert(rotated_rules["-3,0,0"].id == 3)
+    rotated_connections = mapblock_tileset.rotate_connections(connections, size, 180)
+    assert(rotated_connections[1].direction.x == -1)
+    assert(rotated_connections[1].direction.z == 0)
+    assert(rotated_connections[2].direction.x == 0)
+    assert(rotated_connections[2].direction.z == -1)
+    assert(rotated_connections[3].position.x == 3)
+    assert(rotated_connections[3].position.z == 0)
+    assert(rotated_connections[3].direction.x == 0)
+    assert(rotated_connections[3].direction.z == -1)
+
+    rotated_connections = mapblock_tileset.rotate_connections(connections, size, 270)
+    assert(rotated_connections[1].direction.x == 0)
+    assert(rotated_connections[1].direction.z == 1)
+    assert(rotated_connections[2].direction.x == -1)
+    assert(rotated_connections[2].direction.z == 0)
+    assert(rotated_connections[3].position.x == 0)
+    assert(rotated_connections[3].position.z == 0)
+    assert(rotated_connections[3].direction.x == -1)
+    assert(rotated_connections[3].direction.z == 0)
 
     callback()
 end)
@@ -88,9 +108,12 @@ mtt.register("common_select_tile", function(callback)
         catalog = "",
         tiles = {
             {
-                positions = {x=1,y=0,z=0},
-                rules = {
-                    ["0,0,1"] = { groups = {"a"}}
+                position = {x=1,y=0,z=0},
+                connections = {
+                    {
+                        direction = {x=0,y=0,z=1},
+                        groups = {"a"}
+                    }
                 },
                 rotations = {0,90,180,270}
             }
