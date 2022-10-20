@@ -10,7 +10,6 @@ dofile(MP .. "/tools.lua")
 dofile(MP .. "/pointed.lua")
 
 if minetest.get_modpath("mtt") then
-    dofile(MP .. "/mtt.lua")
     dofile(MP .. "/data.spec.lua")
     dofile(MP .. "/common.spec.lua")
 end
