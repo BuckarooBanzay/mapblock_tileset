@@ -48,6 +48,13 @@ mapblock_tileset.cardinal_directions = {
     {x=0, y=-1, z=-1}
 }
 
+-- set the mapblock groups manually (foreign buildings for example)
+function mapblock_tileset.set_mapblock_groups(mapblock_pos, groups)
+    local data = mapblock_tileset.get_mapblock_data(mapblock_pos)
+    data.groups = groups
+    mapblock_tileset.set_mapblock_data(mapblock_pos, data)
+end
+
 -- returns true if the rules match the surroundings
 function mapblock_tileset.compare_rules(mapblock_pos, rules)
     local matches = 0
@@ -56,10 +63,16 @@ function mapblock_tileset.compare_rules(mapblock_pos, rules)
         local abs_pos = vector.add(mapblock_pos, rel_pos)
         local data = mapblock_tileset.get_mapblock_data(abs_pos)
         local groups = {}
-        if data and data.tilename then
-            local tileset = mapblock_tileset.get_tileset(data.tilename)
-            if tileset and tileset.groups then
-                groups = tileset.groups
+        if data then
+            if data.tilename then
+                -- groups from tileset definition
+                local tileset = mapblock_tileset.get_tileset(data.tilename)
+                if tileset and tileset.groups then
+                    groups = tileset.groups
+                end
+            elseif data.groups then
+                -- groups from mapblock data
+                groups = data.groups
             end
         end
 
